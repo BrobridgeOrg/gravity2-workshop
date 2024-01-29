@@ -1,0 +1,4 @@
+[id], [created_at], [updated_at], [username], [password], [email]
+N'18', N'2023-11-14 16:53:50.4205288 +08:00', N'2023-11-14 16:53:50.4205288 +08:00', N'jbXFQtB', N'mOIhDhkIljtsIssFcDfOXQDIEMBbLglLbwuSDDJkONsyEfcPoQ', N'wxMKLBs@JPvECCv.com'
+N'19', N'2023-11-14 16:53:50.4205288 +08:00', N'2023-11-14 16:53:50.4205288 +08:00', N'SbaCcjc', N'FrAZTTRDYVoVMpYZuKDeIYwGuNDmpRayKsRCAomFAGiPHAjHrN', N'TCXXMpW@oZroTql.com'
+N'20', N'2023-11-14 16:53:50.4205288 +08:00', N'2023-11-14 16:53:50.4205288 +08:00', N'BZRocZR', N'iikSgfJjdDgOSwnSkHqLIsmFQvqeqtKRByxVXxUfgnvRrEnQMw', N'cSJUErl@XNmptXD.com'
