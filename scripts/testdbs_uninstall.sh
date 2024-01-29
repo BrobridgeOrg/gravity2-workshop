@@ -11,6 +11,6 @@ then
     log I "uninstall testdbs cancelled"
     exit 0
 fi
-
+pwd
 log I "kubectl delete -f ../assets/testdbs/00-namespace.yaml"
 kubectl delete -f ../assets/testdbs/00-namespace.yaml
