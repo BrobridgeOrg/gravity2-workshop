@@ -49,6 +49,14 @@ spec:
                         "update": "usersUpdate",
                         "delete": "usersDelete"
                       }
+                    },
+                    "dbo.user_addresses":{
+                      "events": {
+                        "snapshot": "user_addressesInitialize",
+                        "create": "user_addressesCreate",
+                        "update": "user_addressesUpdate",
+                        "delete": "user_addressesDelete"
+                      }
                     }
                   }
                 }
