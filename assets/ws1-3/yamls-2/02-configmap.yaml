@@ -20,4 +20,5 @@ data:
   TARGET_DB_DBNAME: TargetTestDB
   SOURCE_DB_TB1_NAME: users
   TARGET_DB_TB1_NAME: users
+  ATOMIC_TOKEN: "xxxxx"
 
