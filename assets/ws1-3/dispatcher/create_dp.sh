@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd /tmp/data_product || exit 1
+cd "$(dirname "$0")" || exit 1
 
 if [ "$1" ]; then
 	DP="$1"
@@ -57,7 +57,8 @@ create_dp_and_wait_created() {
 
 	log I "Data product '${dp}' ...creating"
 	while [ $retries -lt $max_retries ]; do
-		/gravity-cli product create "${dp}" --desc="${dp} pd" --enabled --schema="./schema_${dp}.json" -s "${nats_url}"
+		/gravity-cli product create "${dp}" --desc="${dp} pd" --enabled \
+			--schema="./schema_${dp}.json" -s "${nats_url}"
 		exit_code=$?
 
 		if [ $exit_code -eq 0 ]; then
@@ -93,7 +94,9 @@ create_rulesets() {
 
 	log I "Rulesets '${ruleset_name}' ...creating"
 	while [ $retries -lt $max_retries ]; do
-		/gravity-cli product ruleset add "${dp}" "${ruleset_name}" --enabled --event="${ruleset_name}" --method=create --handler=./handler.js --schema=./schema.json -s "${nats_url}"
+		/gravity-cli product ruleset add "${dp}" "${ruleset_name}" --enabled \
+			--event="${ruleset_name}" --method=create --handler=./handler.js \
+			--schema="./schema_${dp}.json" -s "${nats_url}"
 		exit_code=$?
 
 		if [ $exit_code -eq 0 ]; then
@@ -112,6 +115,7 @@ create_rulesets() {
 
 wait_nats_service
 
+log I "Current directory: $(pwd)"
 create_dp_and_wait_created "${DP}" "${_nats_url}"
 create_rulesets "${DP}" "${DP}Initialize" "${_nats_url}"
 create_rulesets "${DP}" "${DP}Create" "${_nats_url}"

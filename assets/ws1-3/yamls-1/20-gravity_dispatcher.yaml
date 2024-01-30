@@ -34,24 +34,15 @@ spec:
             - /bin/sh
             - -c
             - |
-              until wget -qO- gravity-nats.default.svc.cluster.local:8222/healthz | grep -qi "ok"; do
-                echo "Waiting for gravity-nats:8222 to be ready"
-                sleep 1;
-              done
+              mkdir -p /tmp/data_product
               echo "Start gravity-dispatcher"
               /gravity-dispatcher &
               pid=$$!
-              sleep 2
-              /ws-assets/ws1-3/dispatcher/create_dp.sh "users"
-              if [ $$? -ne 0 ]; then
-                echo "@@ Failed to create product !!!"
-              else
-                echo "## Product has been created. Waiting for gravity-dispatcher(pid $$pid) to terminate."
-              fi
               wait $$pid
           volumeMounts:
             - name: ws-assets-store
-              mountPath: /ws-assets
+              mountPath: /data/ws-assets
+              readOnly: true
           resources:
             limits:
               cpu: "4"
@@ -67,8 +58,11 @@ spec:
         - command:
             - sh
             - -c
-            - until nc -z -w 2 gravity-nats 4222; do echo watting for gravity-nats:4222; sleep 1; done
+            - |
+              until nc -z -w 2 gravity-nats 4222; do echo watting for gravity-nats:4222; sleep 1; done
+              sleep 3 # wait pv & pvc ready
           image: busybox:1.28
           imagePullPolicy: IfNotPresent
           name: init-gravity-dispatcher
-      securityContext: {}
+      securityContext:
+        runAsUser: 0

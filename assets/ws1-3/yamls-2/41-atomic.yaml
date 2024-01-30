@@ -26,15 +26,9 @@ spec:
       containers:
       - env:
         - name: TZ
-          valueFrom:
-            configMapKeyRef:
-              name: configmap
-              key: TZ
+          value: Asia/Taipei
         - name: NATS_SERVER
-          valueFrom: 
-            configMapKeyRef:
-              name: configmap
-              key: NATS_SERVER
+          value: gravity-nats
         - name: TARGET_DB_CNAME
           valueFrom: 
             configMapKeyRef:
@@ -60,11 +54,6 @@ spec:
             configMapKeyRef:
               name: configmap
               key: TARGET_DB_TB1_NAME
-        - name: TARGET_DB_TB2_NAME
-          valueFrom: 
-            configMapKeyRef:
-              name: configmap
-              key: TARGET_DB_TB2_NAME
         - name: TARGET_DB_USER
           valueFrom: 
             configMapKeyRef:
@@ -77,21 +66,11 @@ spec:
               key: TARGET_DB_PASSWORD
         - name: ATOMIC_TOKEN
           valueFrom:
-            secretKeyRef:
-              name: atomictoken
-              key: atomic_token
+            configMapKeyRef:
+              name: configmap
+              key: ATOMIC_TOKEN
         image: ghcr.io/brobridgeorg/atomic/atomic:v0.0.5-20231012-ubi
         imagePullPolicy: IfNotPresent
-        livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /
-            port: 1880
-            scheme: HTTP
-          initialDelaySeconds: 10
-          periodSeconds: 60
-          successThreshold: 1
-          timeoutSeconds: 10
         name: atomic
         resources:
           limits:
@@ -109,11 +88,11 @@ spec:
           - -c
           - |
             echo "Starting atomic"
-            ls -al /ws-assets/ws1-3/atomic
-            npm start --cache /ws-assets/ws1-3/atomic/.npm -- --userDir /ws-assets/ws1-3/atomic /ws-assets/ws1-3/atomic/flows.json
+            ls -al /data/ws-assets/ws1-3/atomic
+            npm start --cache /data/ws-assets/ws1-3/atomic/.npm -- --userDir /data/ws-assets/ws1-3/atomic /data/ws-assets/ws1-3/atomic/flows.json
         volumeMounts:
         - name: ws-assets-store
-          mountPath: /ws-assets
+          mountPath: /data/ws-assets
       restartPolicy: Always
       securityContext:
         runAsUser: 0

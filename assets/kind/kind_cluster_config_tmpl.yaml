@@ -17,3 +17,6 @@ nodes:
     # mssql-testdbs
     - containerPort: 31444
       hostPort: 31444
+    # atomic
+    - containerPort: 31101
+      hostPort: 31101
