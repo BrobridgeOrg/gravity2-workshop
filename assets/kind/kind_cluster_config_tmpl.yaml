@@ -4,3 +4,19 @@ networking:
   # WARNING: It is _strongly_ recommended that you keep this the default
   # (127.0.0.1) for security reasons. However it is possible to change this.
   apiServerAddress: "K8S_MAIN_IP"
+
+nodes:
+  - role: control-plane
+    extraMounts:
+      - hostPath: "WORKSHOP_ASSETS_PATH"
+        containerPath: /ws-assets
+    extraPortMappings:
+    # --- example
+    # - containerPort: xxxx # nodePort of service
+    #   hostPort: xxxx      # hostPort that will be mapped to containerPort
+    # mssql-testdbs
+    - containerPort: 31444
+      hostPort: 31444
+    # atomic
+    - containerPort: 31101
+      hostPort: 31101

@@ -28,8 +28,6 @@ spec:
       nodePort: #:SVC_PORT:#
   selector:
     name: #:SVC_NAME:#
-  #type: LoadBalancer
-  #loadBalancerIP: 172.18.17.157
   type: NodePort
 
 ---

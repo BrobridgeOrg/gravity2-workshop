@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: gravity
+    component: nats
+  name: gravity-nats
+  namespace: ns-workshop
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: gravity
+      component: nats
+  serviceName: gravity-nats-mgmt
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: gravity
+        component: nats
+    spec:
+      containers:
+        - command:
+            - /nats-server
+            - --routes=gravity-nats-0.gravity-nats-mgmt:6222
+            - --routes=gravity-nats-1.gravity-nats-mgmt:6222
+            - --routes=gravity-nats-2.gravity-nats-mgmt:6222
+          image: brobridgehub/nats-server:v1.3.4
+          imagePullPolicy: IfNotPresent
+          name: gravity-nats
+          ports:
+            - containerPort: 4222
+              name: listen-port
+              protocol: TCP
+            - containerPort: 6222
+              name: listen-mgmt
+              protocol: TCP
+            - containerPort: 8222
+              name: listen-http
+              protocol: TCP
+          resources:
+            limits:
+              cpu: "4"
+              memory: 4Gi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          volumeMounts:
+            - mountPath: /datastore
+              name: nats-store
+      securityContext: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: nats-store
+      spec:
+        accessModes: 
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: gravity
+    component: nats
+  name: gravity-nats
+  namespace: ns-workshop
+spec:
+  ports:
+    - name: tcp-gravity-nats
+      port: 4222
+      protocol: TCP
+      targetPort: 4222
+  selector:
+    app: gravity
+    component: nats
+  sessionAffinity: None
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: gravity
+    component: nats
+  name: gravity-nats-mgmt
+  namespace: ns-workshop
+spec:
+  ports:
+    - name: tcp-gravity-nats-mgmt
+      port: 6222
+      protocol: TCP
+      targetPort: 6222
+    - name: tcp-gravity-monitoring
+      port: 8222
+      protocol: TCP
+      targetPort: 8222
+  selector:
+    app: gravity
+    component: nats
+  sessionAffinity: None
+  type: ClusterIP
