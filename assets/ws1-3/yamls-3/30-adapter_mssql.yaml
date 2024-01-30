@@ -33,8 +33,8 @@ spec:
               "sources": {
                 "mssql_source": {
                   "disabled": false,
-                  "host": "192.168.1.20",
-                  "port": 31444,
+                  "host": "mssql-testdbs.ws-testdbs.svc.cluster.local",
+                  "port": 1433,
                   "username": "sa",
                   "dbname": "TestDB",
                   "password": "1qaz@WSX",
@@ -42,12 +42,12 @@ spec:
                   "initialLoad": true,
                   "interval": 1,
                   "tables": {
-                    "dbo.users":{
+                    "dbo.xxxxx":{
                       "events": {
                         "snapshot": "usersInitialize",
-                        "create": "usersCreate",
-                        "update": "usersUpdate",
-                        "delete": "usersDelete"
+                        "create": "xxxxx",
+                        "update": "xxxxx",
+                        "delete": "xxxxx"
                       }
                     }
                   }

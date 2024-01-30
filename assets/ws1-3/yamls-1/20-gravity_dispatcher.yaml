@@ -40,6 +40,13 @@ spec:
               echo "Start gravity-dispatcher"
               /gravity-dispatcher &
               pid=$$!
+              sleep 2
+              # /data/ws-assets/ws1-3/dispatcher/create_dp.sh "users"
+              # if [ $$? -ne 0 ]; then
+              #   echo "@@ Failed to create product !!!"
+              # else
+              #   echo "## Product has been created. Waiting for gravity-dispatcher(pid $$pid) to terminate."
+              # fi
               wait $$pid
           volumeMounts:
             - name: ws-assets-store
