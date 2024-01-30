@@ -49,11 +49,6 @@ spec:
             configMapKeyRef:
               name: configmap
               key: TARGET_DB_DBNAME
-        - name: TARGET_DB_TB1_NAME
-          valueFrom: 
-            configMapKeyRef:
-              name: configmap
-              key: TARGET_DB_TB1_NAME
         - name: TARGET_DB_USER
           valueFrom: 
             configMapKeyRef:
