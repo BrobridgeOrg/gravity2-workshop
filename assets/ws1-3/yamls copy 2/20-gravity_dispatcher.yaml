@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: gravity
+    component: dispatcher
+  name: gravity-dispatcher
+  namespace: ns-workshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gravity
+      component: dispatcher
+  serviceName: gravity-dispatcher
+  template:
+    metadata:
+      labels:
+        app: gravity
+        component: dispatcher
+    spec:
+      containers:
+        - env:
+            - name: GRAVITY_DISPATCHER_GRAVITY_HOST
+              value: gravity-nats
+            - name: GRAVITY_DISPATCHER_GRAVITY_PORT
+              value: "4222"
+            - name: GRAVITY_DISPATCHER_GRAVITY_DOMAIN
+              value: "default"
+          image: ghcr.io/brobridgeorg/gravity/gravity-dispatcher:3de6b01
+          imagePullPolicy: IfNotPresent
+          name: gravity-dispatcher
+          command:
+            - /bin/sh
+            - -c
+            - |
+              until wget -qO- gravity-nats.default.svc.cluster.local:8222/healthz | grep -qi "ok"; do
+                echo "Waiting for gravity-nats:8222 to be ready"
+                sleep 1;
+              done
+              echo "Start gravity-dispatcher"
+              /gravity-dispatcher &
+              pid=$$!
+              sleep 2
+              /ws-assets/ws1-3/dispatcher/create_dp.sh "users"
+              if [ $$? -ne 0 ]; then
+                echo "@@ Failed to create product !!!"
+              else
+                echo "## Product has been created. Waiting for gravity-dispatcher(pid $$pid) to terminate."
+              fi
+              wait $$pid
+          volumeMounts:
+            - name: ws-assets-store
+              mountPath: /ws-assets
+          resources:
+            limits:
+              cpu: "4"
+              memory: 4Gi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+      volumes:
+        - name: ws-assets-store
+          persistentVolumeClaim:
+            claimName: ws-assets-pvc
+      initContainers:
+        - command:
+            - sh
+            - -c
+            - until nc -z -w 2 gravity-nats 4222; do echo watting for gravity-nats:4222; sleep 1; done
+          image: busybox:1.28
+          imagePullPolicy: IfNotPresent
+          name: init-gravity-dispatcher
+      securityContext: {}

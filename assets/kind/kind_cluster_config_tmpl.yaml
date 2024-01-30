@@ -7,6 +7,9 @@ networking:
 
 nodes:
   - role: control-plane
+    extraMounts:
+      - hostPath: "WORKSHOP_ASSETS_PATH"
+        containerPath: /ws-assets
     extraPortMappings:
     # --- example
     # - containerPort: xxxx # nodePort of service

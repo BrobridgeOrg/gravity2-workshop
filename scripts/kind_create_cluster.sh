@@ -39,5 +39,8 @@ log I "Use $K8S_MAIN_IP to create kind_cluster_config.yaml for kind cluster"
 _kind_config_yaml="${PRJ_PATH}/tmp/kind_${ARG_KS_NAME}_config.yaml"
 cp -a ../assets/kind/kind_cluster_config_tmpl.yaml "${_kind_config_yaml}"
 sed -i "s/K8S_MAIN_IP/${K8S_MAIN_IP}/g" "${_kind_config_yaml}"
+_workshop_assets_path="${PRJ_PATH}/assets"
+sed -i "s/WORKSHOP_ASSETS_PATH/${_workshop_assets_path//\//\\/}/g" "${_kind_config_yaml}"
+
 kind create cluster --name="${ARG_KS_NAME}" --image="kindest/node:v1.27.3" --config="${_kind_config_yaml}" --wait=5m
 kubectl cluster-info --context "kind-${ARG_KS_NAME}"

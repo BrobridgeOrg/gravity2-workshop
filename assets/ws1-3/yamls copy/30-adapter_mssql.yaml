@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: adapter
+    component: mssql
+  name: adapter-mssql
+  namespace: ns-workshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adapter
+      component: mssql
+  serviceName: ""
+  template:
+    metadata:
+      labels:
+        app: adapter
+        component: mssql
+    spec:
+      containers:
+      - env:
+        - name: GRAVITY_ADAPTER_MSSQL_GRAVITY_HOST
+          value: gravity-nats
+        - name: GRAVITY_ADAPTER_MSSQL_GRAVITY_PORT
+          value: "4222"
+        - name: GRAVITY_ADAPTER_MSSQL_SOURCE_SETTINGS
+          value: |
+            {
+              "sources": {
+                "mssql_source": {
+                  "disabled": false,
+                  "host": "192.168.1.20",
+                  "port": 31444,
+                  "username": "sa",
+                  "dbname": "TestDB",
+                  "password": "1qazx@WSX",
+                  "param": "",
+                  "initialLoad": true,
+                  "interval": 1,
+                  "tables": {
+                    "dbo.users":{
+                      "events": {
+                        "snapshot": "usersInitialize",
+                        "create": "usersCreate",
+                        "update": "usersUpdate",
+                        "delete": "usersDelete"
+                      }
+                    },
+                    "dbo.user_addresses":{
+                      "events": {
+                        "snapshot": "user_addressesInitialize",
+                        "create": "user_addressesCreate",
+                        "update": "user_addressesUpdate",
+                        "delete": "user_addressesDelete"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+        - name: GRAVITY_ADAPTER_MSSQL_STORE_ENABLED
+          value: "true"
+        - name: GRAVITY_ADAPTER_MSSQL_STORE_PATH
+          value: ./statestore
+        image: ghcr.io/brobridgeorg/gravity/gravity-adapter-mssql:v3.0.5
+        imagePullPolicy: IfNotPresent
+        name: adapter-mssql
+        volumeMounts:
+        - mountPath: ./statestore
+          name: adapter-mssql-store
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - until nc -z -w 2 gravity-nats 4222; do echo watting for gravity-nats:4222;
+          sleep 1; done
+        image: busybox:1.28
+        imagePullPolicy: IfNotPresent
+        name: init-adapter-mssql
+      securityContext: {}
+      volumes:
+      - name: adapter-mssql-store
+        persistentVolumeClaim:
+          claimName: adapter-mssql-pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: adapter-mssql-store
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 200Mi
+        #storageClassName: "standard"
+

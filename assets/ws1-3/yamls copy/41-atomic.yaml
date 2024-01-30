@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: atomic
+  name: atomic
+  namespace: ns-workshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: atomic
+  template:
+    metadata:
+      labels:
+        app: atomic
+    spec:
+      initContainers:
+      - name: check-nats
+        image: busybox:1.28
+        command:
+          - sh
+          - -c
+          - until nc -z -w 2 gravity-nats 4222; do echo watting for gravity-nats:4222; sleep 1; done
+          - echo "gravity-nats:4222 is ready"
+      containers:
+      - env:
+        - name: TZ
+          valueFrom:
+            configMapKeyRef:
+              name: configmap
+              key: TZ
+        - name: NATS_SERVER
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: NATS_SERVER
+        - name: TARGET_DB_CNAME
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_CNAME
+        - name: TARGET_DB_HOST
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_HOST
+        - name: TARGET_DB_PORT
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_PORT
+        - name: TARGET_DB_DBNAME
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_DBNAME
+        - name: TARGET_DB_TB1_NAME
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_TB1_NAME
+        - name: TARGET_DB_TB2_NAME
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_TB2_NAME
+        - name: TARGET_DB_USER
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_USER
+        - name: TARGET_DB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_PASSWORD
+        - name: ATOMIC_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: atomictoken
+              key: atomic_token
+        image: ghcr.io/brobridgeorg/atomic/atomic:v0.0.5-20231012-ubi
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 1880
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          successThreshold: 1
+          timeoutSeconds: 10
+        name: atomic
+        resources:
+          limits:
+            cpu: "2"
+            memory: 500Mi
+          requests:
+            cpu: 200m
+            memory: 300Mi
+        ports:
+        - containerPort: 1880
+          name: listen-port
+          protocol: TCP
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Starting atomic"
+            ls -al /ws-assets/ws1-3/atomic
+            npm start --cache /ws-assets/ws1-3/atomic/.npm -- --userDir /ws-assets/ws1-3/atomic /ws-assets/ws1-3/atomic/flows.json
+        volumeMounts:
+        - name: ws-assets-store
+          mountPath: /ws-assets
+      restartPolicy: Always
+      securityContext:
+        runAsUser: 0
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: ws-assets-store
+          persistentVolumeClaim:
+            claimName: ws-assets-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: atomic
+  name: atomic
+  namespace: ns-workshop
+spec:
+  ports:
+  - name: atomic
+    nodePort: 31101
+    port: 1880
+    protocol: TCP
+    targetPort: 1880
+  selector:
+    app: atomic
+  type: NodePort

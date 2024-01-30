@@ -1,0 +1,26 @@
+{
+	"address": {
+		"type": "string"
+	},
+	"city": {
+		"type": "string"
+	},
+	"created_at": {
+		"type": "time"
+	},
+	"id": {
+		"type": "int"
+	},
+	"postal_code": {
+		"type": "string"
+	},
+	"state": {
+		"type": "string"
+	},
+	"updated_at": {
+		"type": "time"
+	},
+	"user_id": {
+		"type": "int"
+	}
+}

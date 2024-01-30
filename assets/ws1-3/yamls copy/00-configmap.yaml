@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap
+  namespace: ns-workshop
+data:
+  TZ: Asia/Taipei
+  NATS_SERVER: gravity-nats
+  SOURCE_DB_CNAME: SQL Server
+  SOURCE_DB_HOST: 192.168.1.20
+  SOURCE_DB_PORT: "31444"
+  SOURCE_DB_USER: sa
+  SOURCE_DB_DBNAME: TestDB
+  TARGET_DB_CNAME: SQL Server
+  TARGET_DB_HOST: 192.168.1.20
+  TARGET_DB_PORT: "31444"
+  TARGET_DB_USER: sa
+  TARGET_DB_DBNAME: TargetTestDB
+  SOURCE_DB_TB1_NAME: users
+  SOURCE_DB_TB2_NAME: user_addresses
+  TARGET_DB_TB1_NAME: users
+  TARGET_DB_TB2_NAME: user_addresses
