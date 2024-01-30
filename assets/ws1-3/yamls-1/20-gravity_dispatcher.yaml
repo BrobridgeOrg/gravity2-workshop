@@ -21,6 +21,8 @@ spec:
     spec:
       containers:
         - env:
+            # - name: GRAVITY_DEBUG
+            #   value: "debug"
             - name: GRAVITY_DISPATCHER_GRAVITY_HOST
               value: gravity-nats
             - name: GRAVITY_DISPATCHER_GRAVITY_PORT

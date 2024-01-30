@@ -6,3 +6,7 @@ assets/ws1-3/atomic/.DS_Store
 assets/ws1-3/atomic/lib
 assets/ws1-3/atomic/node_modules
 assets/ws1-3/atomic/cronplusdata
+assets/ws1-3/atomic/.flows.json.backup
+assets/ws1-3/atomic/.flows_cred.json.backup
+assets/ws1-3/atomic/.config.users.json.backup
+assets/ws1-3/atomic/.config.users.json

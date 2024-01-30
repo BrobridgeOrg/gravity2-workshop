@@ -44,3 +44,10 @@ sed -i "s/WORKSHOP_ASSETS_PATH/${_workshop_assets_path//\//\\/}/g" "${_kind_conf
 
 kind create cluster --name="${ARG_KS_NAME}" --image="kindest/node:v1.27.3" --config="${_kind_config_yaml}" --wait=5m
 kubectl cluster-info --context "kind-${ARG_KS_NAME}"
+
+
+K8S_MAIN_IP=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}' | awk -F[/:] '{print $4}')
+
+log I "To access service from other host, please use following info"
+log I " * mssql: ${K8S_MAIN_IP}:31444"
+log I " * atomic: http://${K8S_MAIN_IP}:31101"
