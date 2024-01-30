@@ -42,12 +42,12 @@ spec:
                   "initialLoad": true,
                   "interval": 1,
                   "tables": {
-                    "dbo.xxxxx":{
+                    "dbo.users":{
                       "events": {
                         "snapshot": "usersInitialize",
-                        "create": "xxxxx",
-                        "update": "xxxxx",
-                        "delete": "xxxxx"
+                        "create": "usersCreate",
+                        "update": "usersUpdate",
+                        "delete": "usersDelete"
                       }
                     }
                   }
