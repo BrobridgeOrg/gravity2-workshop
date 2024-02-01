@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: #:SVC_NAME:#-volume1
+  namespace: #:NAME_SPACE:#
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  #storageClassName: standard
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: #:SVC_NAME:#
+  namespace: #:NAME_SPACE:#
+  labels:
+    app: gravity
+spec:
+  ports:
+    - port: 1433
+      name: tcp
+      protocol: TCP
+      nodePort: #:SVC_PORT:#
+  selector:
+    name: #:SVC_NAME:#
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: #:SVC_NAME:#
+  namespace: #:NAME_SPACE:#
+  labels:
+    name: #:SVC_NAME:#
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: #:SVC_NAME:#
+  template:
+    metadata:
+      labels:
+        name: #:SVC_NAME:#
+    spec:
+      hostname: #:SVC_NAME:#
+      securityContext: {}
+      containers:
+        - image: mcr.microsoft.com/mssql/server:2019-latest
+        #- image: mcr.microsoft.com/mssql/server:2017-CU17-ubuntu
+          name: #:SVC_NAME:#
+          env:
+            - name: "ACCEPT_EULA"
+              value: "Y"
+            - name: "SA_PASSWORD"
+              value: "1qaz@WSX"
+            - name: "MSSQL_AGENT_ENABLED"
+              value: "true"
+            - name: "MSSQL_COLLATION"
+              value: "Chinese_Taiwan_Stroke_CI_AS"
+          volumeMounts:
+          - mountPath: /var/opt/mssql
+            name: data-store
+          ports:
+            - containerPort: 1433
+              name: tcp
+      volumes:
+      - name: data-store
+        persistentVolumeClaim:
+          claimName: #:SVC_NAME:#-volume1

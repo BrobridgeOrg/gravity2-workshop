@@ -1,0 +1,7 @@
+ns=ws-testdbs
+svc_name="mssql-testdbs"
+svc_port="31444"
+pod=$(kubectl -n ${ns} get pods | awk '/^'"${svc_name}"'-/{print $1}')
+sql_account="SA"
+sql_pass='1qaz@WSX'
+db_name="TargetTestDB"

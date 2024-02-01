@@ -11,3 +11,14 @@ assets/ws1-3/atomic/.flows_cred.json.backup
 assets/ws1-3/atomic/.config.users.json.backup
 assets/ws1-3/atomic/.config.users.json
 assets/earthly/part1/local-output
+
+# test case assets
+tests/*/assets/atomic/.npm
+tests/*/assets/atomic/.DS_Store
+tests/*/assets/atomic/lib
+tests/*/assets/atomic/node_modules
+tests/*/assets/atomic/cronplusdata
+tests/*/assets/atomic/.flows.json.backup
+tests/*/assets/atomic/.flows_cred.json.backup
+tests/*/assets/atomic/.config.users.json.backup
+tests/*/assets/atomic/.config.users.json

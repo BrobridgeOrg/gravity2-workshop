@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: atomic
+  name: atomic
+  namespace: case1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: atomic
+  template:
+    metadata:
+      labels:
+        app: atomic
+    spec:
+      volumes:
+        - name: ws-assets-store
+          persistentVolumeClaim:
+            claimName: ws-assets-pvc
+      initContainers:
+      - name: wait-data-product
+        image: ghcr.io/brobridgeorg/gravity/gravity-dispatcher:3de6b01
+        env:
+        - name: GRAVITY_DISPATCHER_GRAVITY_HOST
+          value: gravity-nats
+        - name: GRAVITY_DISPATCHER_GRAVITY_PORT
+          value: "4222"
+        - name: GRAVITY_DISPATCHER_GRAVITY_DOMAIN
+          value: "default"
+        command:
+          - /bin/sh
+          - -c
+          - |
+            /data/ws-assets/dispatcher/wait_ready_dp.sh "users"
+        volumeMounts:
+          - name: ws-assets-store
+            mountPath: /data/ws-assets
+            readOnly: true
+      containers:
+      - env:
+        - name: TZ
+          value: Asia/Taipei
+        - name: NATS_SERVER
+          value: gravity-nats
+        - name: TARGET_DB_CNAME
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_CNAME
+        - name: TARGET_DB_HOST
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_HOST
+        - name: TARGET_DB_PORT
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_PORT
+        - name: TARGET_DB_DBNAME
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_DBNAME
+        - name: TARGET_DB_USER
+          valueFrom: 
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_USER
+        - name: TARGET_DB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: configmap
+              key: TARGET_DB_PASSWORD
+        - name: ATOMIC_TOKEN
+          valueFrom:
+            configMapKeyRef:
+              name: configmap
+              key: ATOMIC_TOKEN
+        image: ghcr.io/brobridgeorg/atomic/atomic:v0.0.5-20231012-ubi
+        imagePullPolicy: IfNotPresent
+        name: atomic
+        resources:
+          limits:
+            cpu: "2"
+            memory: 500Mi
+          requests:
+            cpu: 200m
+            memory: 300Mi
+        ports:
+        - containerPort: 1880
+          name: listen-port
+          protocol: TCP
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Starting atomic"
+            npm start --cache /data/ws-assets/atomic/.npm -- --userDir /data/ws-assets/atomic /data/ws-assets/atomic/flows.json
+        volumeMounts:
+        - name: ws-assets-store
+          mountPath: /data/ws-assets
+      restartPolicy: Always
+      securityContext:
+        runAsUser: 0
+      terminationGracePeriodSeconds: 30
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: atomic
+  name: atomic
+  namespace: case1
+spec:
+  ports:
+  - name: atomic
+    nodePort: 31101
+    port: 1880
+    protocol: TCP
+    targetPort: 1880
+  selector:
+    app: atomic
+  type: NodePort
