@@ -13,7 +13,8 @@ kubectl -n ${ns} get svc "${svc_name}" &>/dev/null || {
     -e "s/#:SVC_PORT:#/${svc_port}/" \
     -e "s/#:SVC_NAME:#/${svc_name}/" \
     | kubectl apply -f -
-  sleep 1
+  # FIXME: wait for the service to be ready not use sleep
+  sleep 3
   pod=$(kubectl -n ${ns} get pods | awk '/^'"${svc_name}"'-/{print $1}')
 }
 
