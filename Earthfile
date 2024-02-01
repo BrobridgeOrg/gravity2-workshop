@@ -1,7 +1,7 @@
 VERSION 0.7 # Earthly version to use
 FROM golang:1.21.3-alpine3.18
 WORKDIR /go-workdir
-
+# foo commit
 RUN apk update && apk upgrade --available \
     && apk add --no-cache ca-certificates tzdata curl bash \
     bash-completion tree wget
