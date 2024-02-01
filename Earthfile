@@ -37,5 +37,5 @@ integration-tests-k8s:
     COPY --dir scripts /go-workdir/scripts
     COPY --dir tests /go-workdir/tests
     WITH DOCKER
-        RUN /go-workdir/xxxx "eth0" "case1" "renew_all" 
+        RUN /go-workdir/tests/integration_test_steps.sh "eth0" "case1" "renew_all" 
     END
