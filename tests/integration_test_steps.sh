@@ -33,14 +33,17 @@ source "${PROJECT_PATH}/scripts/common.sh"
 
 [ ! -d "${PROJECT_PATH}/tmp" ] && mkdir -p "${PROJECT_PATH}/tmp"
 
+# 安裝 kubectl & kind
 if ! command -v kubectl &> /dev/null ; then
-    log E "kubectl not found"
-    exit 1
+    log I "install kubectl ${KIND_K8S_VER}"
+    curl -sLo /usr/local/bin/kubectl "https://storage.googleapis.com/kubernetes-release/release/${KIND_K8S_VER}/bin/linux/amd64/kubectl"
+    chmod +x /usr/local/bin/kubectl 
 fi 
 
 if ! command -v kind &> /dev/null ; then
-    log E "kind not found"
-    exit 1
+    log I "install kind 0.20.0"
+    curl -sLo /usr/local/bin/kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64 
+    chmod +x /usr/local/bin/kind
 fi
 
 cd "${TC_PATH}"
@@ -81,12 +84,22 @@ if [ "${RWNEW_OPT}" = "renew_all" ]; then
     if [[ -n $DOCKER_HUB_USERNAME ]] && [[ -n $DOCKER_HUB_ACCESS_TOKEN ]]; then
         echo -n "${DOCKER_HUB_ACCESS_TOKEN}" | docker login -u "${DOCKER_HUB_USERNAME}" --password-stdin
     fi
-    log I "copy dockerconfigjson to kind cluster"
-    "${PROJECT_PATH}/scripts/kind_dockerconfigjson.sh" "${KS_NAME}"
 
-    # load docker image to kind cluster
-    log I "load docker images to kind cluster"
-    "${PROJECT_PATH}/scripts/kind_load_images.sh" "${KS_NAME}"
+    if [ -f "${HOME}/.docker/config.json" ]; then
+        # copy dockerconfigjson to kind cluster
+        log I "copy dockerconfigjson to kind cluster"
+        "${PROJECT_PATH}/scripts/kind_dockerconfigjson.sh" "${KS_NAME}"
+    fi
+
+    # 使用 EARTHLY_CI 這個環境變數，判斷是否由 earthly 執行的
+    # 只有在本機直接執行這個腳本時，才需要將 docker image 載入到 kind cluster
+    # ref: https://docs.earthly.dev/docs/earthfile/builtin-args
+    log D "EARTHLY_CI = '${EARTHLY_CI}'"
+    if [ "${EARTHLY_CI}" = "" ]; then
+        # load docker image to kind cluster when your are run on local machine
+        log I "load docker images to kind cluster"
+        "${PROJECT_PATH}/scripts/kind_load_images.sh" "${KS_NAME}"
+    fi
 fi
 
 # check namespace exist, if exist, delete it

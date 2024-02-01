@@ -1,5 +1,5 @@
 VERSION 0.7 # Earthly version to use
-FROM golang:1.21.3-alpine3.19
+FROM golang:1.21.3-alpine3.18
 WORKDIR /go-workdir
 
 part1-build:
@@ -13,6 +13,7 @@ part1-docker:
     SAVE IMAGE go-example:latest
 
 integration-tests-k8s:
+    ARG EARTHLY_CI
     # 下面這兩個參數 DOCKER_HUB_USERNAME, DOCKER_HUB_ACCESS_TOKEN
     # 在非 github action runner，例如: 本機, 筆電執行這個 target 時，需要從命令列傳入這兩個參數
     # 可避免 docker hub 匿名 pull image 時，遇到 rate limit 的問題
@@ -36,7 +37,5 @@ integration-tests-k8s:
     COPY --dir scripts /go-workdir/scripts
     COPY --dir tests /go-workdir/tests
     WITH DOCKER
-        RUN --secret GITHUB_ACTOR \
-            --secret GITHUB_TOKEN \
-            /go-workdir/tests/integration-k8s/src/integration_test_steps.sh "eth0" "deploy" "renew_ks"
+        RUN /go-workdir/tests/integration_test_steps.sh "eth0" "case1" "renew_all" 
     END

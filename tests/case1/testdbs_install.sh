@@ -10,10 +10,9 @@ if kubectl get ns ws-testdbs &> /dev/null ; then
     exit 0
 fi
 
-log I "kubectl apply -f ../assets/testdbs/00-namespace.yaml"
+log I "kubectl apply -f ./assets/testdbs/00-namespace.yaml"
 kubectl apply -f ./assets/testdbs/00-namespace.yaml
 
-log I "deploy test mssql server & create source database (TestDB)"
 ./assets/testdbs/test-mssql_source/10-create_source_db.sh
 log I "  create table 'users'"
 ./assets/testdbs/test-mssql_source/users/01-create_src_tb.sh
