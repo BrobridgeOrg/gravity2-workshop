@@ -57,11 +57,11 @@ k8s_wait_pods_ready() {
     local RETRY_INTERVAL=5 # seconds
     local RETRY_COUNT=0
 
-    log I "wait all pod of namespace ready: ${NAMESPACE} (10m)"
+    log I "wait all pod of namespace ready: ${NAMESPACE} (5m)"
     # kubectl wait --for jsonpath='{.status.phase}=Active' --timeout=30s namespace/${NAMESPACE}
     while true; do
         log I "kubectl wait ${NAMESPACE}"
-        ERROR=$(kubectl wait --for=condition=Ready pod --all -n "${NAMESPACE}" --timeout=10m 2>&1 > /dev/null)
+        ERROR=$(kubectl wait --for=condition=Ready pod --all -n "${NAMESPACE}" --timeout=5m 2>&1 > /dev/null)
         # shellcheck disable=SC2181
         if [ $? -eq 0 ]; then
             log I "All pods in ${NAMESPACE} are ready."
