@@ -42,7 +42,7 @@ ci-pull-request:
     BUILD +lint
     BUILD +part1-build
     BUILD +part1-docker
-    # BUILD +integration-tests-k8s
+    BUILD +integration-tests-k8s
 
 integration-tests-k8s:
     ARG EARTHLY_CI
